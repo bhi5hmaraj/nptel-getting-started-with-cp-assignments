@@ -11,7 +11,6 @@ public class Main {
 
 
     /*
-
       The main observation is that you can binary search for the answer.
 
        is possible?   N N N N Y Y Y Y Y N N
