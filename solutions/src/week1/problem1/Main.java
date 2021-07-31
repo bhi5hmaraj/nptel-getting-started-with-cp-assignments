@@ -2,7 +2,7 @@ package week1.problem1;
 
 import java.io.*;
 import java.util.StringTokenizer;
-import java.util.stream.IntStream;
+
 
 public class Main {
 
@@ -10,17 +10,12 @@ public class Main {
     /************************ SOLUTION STARTS HERE ***********************/
 
     static int compare(long arr[], long proposedS, long K) {
-//        System.out.println(Arrays.toString(arr) + " proposal " + proposedS + " K " + K);
-//        IntStream.rangeClosed(1, arr.length)
-//                .takeWhile(i -> (proposedS * i) / K == arr[i - 1])
-//                .forEach(x -> System.out.print(x + " "));
-//        System.out.println();
 
-        int pos =  IntStream.rangeClosed(1, arr.length)
-                        .takeWhile(i -> (proposedS * i) / K == arr[i - 1])
-                        .max()
-                        .orElse(0);
-        return pos == arr.length ? 0 : Long.compare(arr[pos], (proposedS * (pos + 1)) / K);
+        int pos =  1;
+        for (; pos <= arr.length && (proposedS * pos) / K == arr[pos - 1]; pos++)
+            ;
+        return pos == arr.length + 1 ? 0 :
+                Long.compare(arr[pos - 1], (proposedS * pos) / K);
     }
 
 
@@ -41,6 +36,7 @@ public class Main {
             long mid = l + ((r - l) >> 1);
 
             for (int cmp = compare(arr, mid, K); cmp != 0; cmp = compare(arr, mid, K)) {
+
                 if (cmp < 0) // we are over shooting, hence we have to reduce it
                     r = mid - 1;
                 else
@@ -51,7 +47,6 @@ public class Main {
             }
 
             long candidate = mid;
-//            System.out.println("cand " + candidate);
 
             // Now find the left most possible by binary searching on the left side
 
@@ -73,7 +68,7 @@ public class Main {
             l = candidate;
             r = arr[0] * K + K;
 
-            while (l < r) {
+            while (l <= r) {
                 mid = l + ((r - l) >> 1);
                 if (compare(arr, mid, K) == 0)  // we are still in the possible region, so go right
                     l = mid + 1;
