@@ -1,19 +1,46 @@
-import java.io.*;
-import java.util.*;
+package week2.problem2;
 
-public class Template {
+import java.util.*;
+import java.io.*;
+
+public class Main {
 
 
     /************************ SOLUTION STARTS HERE ***********************/
 
+    static int[] A;
+    static long M;
+
+    static boolean canSatisfy(int K) {
+        return Arrays.stream(A).mapToLong(x -> (long) Math.ceil((1.0 * x) / K)).sum() <= M;
+    }
 
     private static void solve(FastScanner scan, PrintWriter out) {
 
+        int T = scan.nextInt();
+        while (T-->0) {
+            int N = scan.nextInt();
+            M = scan.nextLong();
+            A = scan.nextIntArray(N);
+
+            int l = 1;
+            int r = (int) 1e9;
+
+            while (l <= r) {
+                int mid = (l + r) >> 1;
+                if (canSatisfy(mid))
+                    r = mid - 1;
+                else
+                    l = mid + 1;
+            }
+
+            out.println(l);
+        }
 
     }
 
 
-/************************ SOLUTION ENDS HERE ************************/
+    /************************ SOLUTION ENDS HERE ************************/
 
 
     /************************ TEMPLATE STARTS HERE *********************/
@@ -122,6 +149,5 @@ public class Template {
         }
     }
 
-/************************ TEMPLATE ENDS HERE ************************/
-
+    /************************ TEMPLATE ENDS HERE ************************/
 }
