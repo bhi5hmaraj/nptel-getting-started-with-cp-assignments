@@ -1,17 +1,62 @@
+package week2.problem1;
 
-public class Template {
+import java.util.*;
+import java.io.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+public class Main {
 
 
     /************************ SOLUTION STARTS HERE ***********************/
 
+    static class Pair implements  Comparable<Pair> {
+        int position, value;
+        Pair (int pos, int val) {
+            position = pos;
+            value = val;
+        }
+
+        @Override
+        public int compareTo(Pair o) {
+            return Integer.compare(value, o.value);
+        }
+    }
 
     private static void solve(FastScanner scan, PrintWriter out) {
 
+        int N = scan.nextInt();
+        int K = scan.nextInt();
 
+        int[] arr = scan.nextIntArray(N);
+
+        List<Pair> enumeration = IntStream.range(0, N)
+                                    .mapToObj(i -> new Pair(i, arr[i]))
+                                    .collect(Collectors.toList());
+
+        Collections.sort(enumeration);
+
+        int cnt = 0;
+        for (int i = 0; i < N; ) {
+            int maxCover = enumeration.get(i).position + K;
+            cnt++;
+            i++;
+
+            while (i  < N &&
+                    enumeration.get(i).value == enumeration.get(i - 1).value) {
+                if (enumeration.get(i).position >= maxCover) {
+                    cnt++;
+                    maxCover = enumeration.get(i).position + K;
+                }
+                i++;
+            }
+        }
+
+        out.println(cnt);
     }
 
 
-/************************ SOLUTION ENDS HERE ************************/
+    /************************ SOLUTION ENDS HERE ************************/
 
 
     /************************ TEMPLATE STARTS HERE *********************/
@@ -120,6 +165,5 @@ public class Template {
         }
     }
 
-/************************ TEMPLATE ENDS HERE ************************/
-
+    /************************ TEMPLATE ENDS HERE ************************/
 }

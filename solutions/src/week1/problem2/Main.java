@@ -25,7 +25,8 @@ public class Main {
 
     static int MAX_N = (int) 1e6;
     static boolean[] isPrime = isPrimeArray(MAX_N);
-    static int[] primes = IntStream.rangeClosed(1, MAX_N).filter(i -> isPrime[i]).toArray();
+    static int[] primes = IntStream.rangeClosed(1, MAX_N)
+                                    .filter(i -> isPrime[i]).toArray();
 
 
     private static void solve(FastScanner scan
