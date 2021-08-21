@@ -3,7 +3,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class Mod01ReverseSort {
+public class Week01Mod01ReverseSort {
 
     public static void main (String args[]) throws IOException {
         BufferedReader reader = new BufferedReader(

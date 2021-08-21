@@ -1,82 +1,79 @@
-package week3.problem2;
-
 import java.util.*;
 import java.io.*;
-import java.util.stream.IntStream;
 
-public class Main {
+/*
+Author: Bhishmaraj S
+Discord: @TravellingSalesman
+Submission: https://www.codechef.com/viewsolution/50038495
+ */
+
+class Week03Mod03StableMarriage {
 
 
     /************************ SOLUTION STARTS HERE ***********************/
 
-    // Wrong solution!
-    private static void solve1(FastScanner scan, PrintWriter out) {
+
+    private static void solve(FastScanner scan, PrintWriter out) {
 
         int T = scan.nextInt();
-        while(T-->0) {
+        while (T-->0) {
             int N = scan.nextInt();
-            TreeMap<Long, Stack<Integer>> pq = new TreeMap<>();  // L_i -> [D_js]
-            HashMap<Integer, Integer> distinctCounter = new HashMap<>();    // D_i -> freq[D_i]
+            int[][] womenChoice = new int[N][];
+            int[][] menChoice = new int[N][];
 
             for (int i = 0; i < N; i++) {
-                int D = scan.nextInt();
-                long L = scan.nextLong();
-
-                distinctCounter.merge(D, 1, Integer::sum);
-
-                pq.compute(L, (length, directors) -> {
-                    directors = directors == null ? new Stack<>() : directors;
-                    directors.add(D);
-                    return directors;
-                });
+                int w = scan.nextInt() - 1;
+                womenChoice[w] = scan.nextIntArray(N);
+                for (int j = 0; j < N; j++)
+                    womenChoice[w][j]--;
             }
-
-            long maxEnjoyment = 0;
-            while (distinctCounter.size() > 0) {
-                long currMax = pq.lastKey();
-                maxEnjoyment += currMax * distinctCounter.size();
-
-                pq.compute(currMax, (k, directors) -> {
-                   distinctCounter.compute(directors.pop(), (d, freq) -> freq == 1 ? null : freq - 1);
-                    return directors.isEmpty() ? null : directors;
-                });
-                out.println("pq" + pq);
-                out.println("distinct " + distinctCounter);
-            }
-
-            out.println(maxEnjoyment);
-        }
-
-    }
-
-    private static void solve2(FastScanner scan, PrintWriter out) {
-
-        int T = scan.nextInt();
-        while (T-- > 0) {
-            int N = scan.nextInt();
-            long maxEnjoyment = 0;
-            long sum = 0;
-            HashMap<Integer, Long> storeMin = new HashMap<>();
             for (int i = 0; i < N; i++) {
-                int D = scan.nextInt();
-                long L = scan.nextLong();
-                sum += L;
-                storeMin.merge(D, L, Long::min);
+                int m = scan.nextInt() - 1;
+                menChoice[m] = scan.nextIntArray(N);
+                for (int j = 0; j < N; j++)
+                    menChoice[m][j]--;
             }
 
-            List<Long> minimums = new ArrayList<>(storeMin.values());
+            int[][] womenChoiceInverse = new int[N][N]; // for women w : wci[w][i] = position of man i in w's preference
 
-            sum -=  minimums.stream().reduce(0L, Long::sum);
+            for (int i = 0; i < N; i++)
+                for (int j = 0; j < N; j++)
+                    womenChoiceInverse[i][womenChoice[i][j]] = j; // my cache is gonna cry :(
 
-            Collections.sort(minimums);
+            ArrayDeque<Integer> unMatched = new ArrayDeque<>();
+            for (int i = 0; i < N; i++)
+                unMatched.add(i);
 
-            maxEnjoyment = sum * storeMin.size() +
-                            IntStream.rangeClosed(1, storeMin.size())
-                                .mapToLong(i -> i * minimums.get(i - 1))
-                                .sum();
+            // This holds the index
+            int[] menMatching = new int[N];
+            // This holds actual value
+            int[] womenMatching = new int[N];
 
-            out.println(maxEnjoyment);
+            for (int i = 0; i < N; i++)
+                menMatching[i] = womenMatching[i] = -1; // un matched
+
+            while (unMatched.size() > 0) {
+                int m = unMatched.remove();
+                int ptr = menMatching[m] + 1;
+                for (; ptr < N; ptr++) {
+                    int w = menChoice[m][ptr];
+                    if (womenMatching[w] == -1) {
+                        womenMatching[w] = m;
+                        break;
+                    } else if (womenChoiceInverse[w][m] < womenChoiceInverse[w][womenMatching[w]]) {
+                        unMatched.add(womenMatching[w]);
+                        womenMatching[w] = m;
+                        break;
+                    }
+                }
+                menMatching[m] = ptr;
+            }
+
+            for (int i = 0; i < N; i++)
+                out.println((i + 1) + " " + (menChoice[i][menMatching[i]] + 1));
+
         }
+
     }
 
 
@@ -89,7 +86,7 @@ public class Main {
         FastScanner in = new FastScanner(System.in);
         PrintWriter out =
                 new PrintWriter(new BufferedWriter(new OutputStreamWriter(System.out)), false);
-        solve2(in, out);
+        solve(in, out);
         in.close();
         out.close();
     }

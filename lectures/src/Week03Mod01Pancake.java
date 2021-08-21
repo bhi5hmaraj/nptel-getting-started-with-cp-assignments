@@ -1,82 +1,46 @@
-package week3.problem2;
-
 import java.util.*;
 import java.io.*;
 import java.util.stream.IntStream;
 
-public class Main {
+/*
+Author: Bhishmaraj S
+Discord: @TravellingSalesman
+ */
+
+public class Week03Mod01Pancake {
 
 
     /************************ SOLUTION STARTS HERE ***********************/
 
-    // Wrong solution!
-    private static void solve1(FastScanner scan, PrintWriter out) {
+
+    private static void solve(FastScanner scan, PrintWriter out) {
 
         int T = scan.nextInt();
-        while(T-->0) {
-            int N = scan.nextInt();
-            TreeMap<Long, Stack<Integer>> pq = new TreeMap<>();  // L_i -> [D_js]
-            HashMap<Integer, Integer> distinctCounter = new HashMap<>();    // D_i -> freq[D_i]
+        for (int tc = 1; tc <= T; tc++) {
+            String str = scan.next();
+            int K = scan.nextInt();
+            int len = str.length();
 
-            for (int i = 0; i < N; i++) {
-                int D = scan.nextInt();
-                long L = scan.nextLong();
+            BitSet pancakes = new BitSet(len);
+            IntStream.range(0, len).forEach(i -> pancakes.set(i, str.charAt(i) == '+'));
 
-                distinctCounter.merge(D, 1, Integer::sum);
+            int cost =
+                IntStream.range(0, len - K + 1)
+                    .map(i -> {
+                        if (!pancakes.get(i)) {
+                            pancakes.flip(i, i + K);
+                            return 1;
+                        } else {
+                            return 0;
+                        }
+                    }).sum();
 
-                pq.compute(L, (length, directors) -> {
-                    directors = directors == null ? new Stack<>() : directors;
-                    directors.add(D);
-                    return directors;
-                });
-            }
+            // Cardinality Returns the number of bits set to true in BitSet
 
-            long maxEnjoyment = 0;
-            while (distinctCounter.size() > 0) {
-                long currMax = pq.lastKey();
-                maxEnjoyment += currMax * distinctCounter.size();
-
-                pq.compute(currMax, (k, directors) -> {
-                   distinctCounter.compute(directors.pop(), (d, freq) -> freq == 1 ? null : freq - 1);
-                    return directors.isEmpty() ? null : directors;
-                });
-                out.println("pq" + pq);
-                out.println("distinct " + distinctCounter);
-            }
-
-            out.println(maxEnjoyment);
+            out.println(String.format("Case #%d: %s",
+                    tc, pancakes.get(len - K, len).cardinality() == K ? cost : "IMPOSSIBLE"));
         }
 
-    }
-
-    private static void solve2(FastScanner scan, PrintWriter out) {
-
-        int T = scan.nextInt();
-        while (T-- > 0) {
-            int N = scan.nextInt();
-            long maxEnjoyment = 0;
-            long sum = 0;
-            HashMap<Integer, Long> storeMin = new HashMap<>();
-            for (int i = 0; i < N; i++) {
-                int D = scan.nextInt();
-                long L = scan.nextLong();
-                sum += L;
-                storeMin.merge(D, L, Long::min);
-            }
-
-            List<Long> minimums = new ArrayList<>(storeMin.values());
-
-            sum -=  minimums.stream().reduce(0L, Long::sum);
-
-            Collections.sort(minimums);
-
-            maxEnjoyment = sum * storeMin.size() +
-                            IntStream.rangeClosed(1, storeMin.size())
-                                .mapToLong(i -> i * minimums.get(i - 1))
-                                .sum();
-
-            out.println(maxEnjoyment);
-        }
     }
 
 
@@ -89,7 +53,7 @@ public class Main {
         FastScanner in = new FastScanner(System.in);
         PrintWriter out =
                 new PrintWriter(new BufferedWriter(new OutputStreamWriter(System.out)), false);
-        solve2(in, out);
+        solve(in, out);
         in.close();
         out.close();
     }

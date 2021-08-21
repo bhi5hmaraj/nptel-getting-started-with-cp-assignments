@@ -1,82 +1,57 @@
-package week3.problem2;
-
 import java.util.*;
 import java.io.*;
 import java.util.stream.IntStream;
 
-public class Main {
+/*
+Author: Bhishmaraj S
+Discord: @TravellingSalesman
+Submission: https://atcoder.jp/contests/abc103/submissions/25247290
+ */
+
+class Week03Mod02IslandWars {
 
 
     /************************ SOLUTION STARTS HERE ***********************/
 
-    // Wrong solution!
-    private static void solve1(FastScanner scan, PrintWriter out) {
+    static class Interval {
+        int l, r, index;
 
-        int T = scan.nextInt();
-        while(T-->0) {
-            int N = scan.nextInt();
-            TreeMap<Long, Stack<Integer>> pq = new TreeMap<>();  // L_i -> [D_js]
-            HashMap<Integer, Integer> distinctCounter = new HashMap<>();    // D_i -> freq[D_i]
-
-            for (int i = 0; i < N; i++) {
-                int D = scan.nextInt();
-                long L = scan.nextLong();
-
-                distinctCounter.merge(D, 1, Integer::sum);
-
-                pq.compute(L, (length, directors) -> {
-                    directors = directors == null ? new Stack<>() : directors;
-                    directors.add(D);
-                    return directors;
-                });
-            }
-
-            long maxEnjoyment = 0;
-            while (distinctCounter.size() > 0) {
-                long currMax = pq.lastKey();
-                maxEnjoyment += currMax * distinctCounter.size();
-
-                pq.compute(currMax, (k, directors) -> {
-                   distinctCounter.compute(directors.pop(), (d, freq) -> freq == 1 ? null : freq - 1);
-                    return directors.isEmpty() ? null : directors;
-                });
-                out.println("pq" + pq);
-                out.println("distinct " + distinctCounter);
-            }
-
-            out.println(maxEnjoyment);
+        public Interval(int l, int r, int index) {
+            this.l = l;
+            this.r = r;
+            this.index = index;
         }
-
     }
 
-    private static void solve2(FastScanner scan, PrintWriter out) {
+    private static void solve(FastScanner scan, PrintWriter out) {
 
-        int T = scan.nextInt();
-        while (T-- > 0) {
-            int N = scan.nextInt();
-            long maxEnjoyment = 0;
-            long sum = 0;
-            HashMap<Integer, Long> storeMin = new HashMap<>();
-            for (int i = 0; i < N; i++) {
-                int D = scan.nextInt();
-                long L = scan.nextLong();
-                sum += L;
-                storeMin.merge(D, L, Long::min);
+        int N = scan.nextInt();
+        int M = scan.nextInt();
+
+        Interval[] sortedRight = new Interval[M];
+        IntStream.range(0, M).forEach(i -> sortedRight[i] = new Interval(scan.nextInt(), scan.nextInt(), i));
+
+        boolean[] covered = new boolean[M];
+
+        Interval[] sortedLeft = Arrays.copyOf(sortedRight, M);
+
+        Arrays.sort(sortedRight, (i1, i2) -> Integer.compare(i1.r, i2.r));
+        Arrays.sort(sortedLeft, (i1, i2) -> Integer.compare(i1.l, i2.l));
+
+        int cnt = 0;
+        int ptr = 0;
+
+        for (Interval interval : sortedRight) {
+            if (!covered[interval.index]) {
+                cnt++;
+                while (ptr < M && sortedLeft[ptr].l < interval.r) {
+                    covered[sortedLeft[ptr].index] = true;
+                    ptr++;
+                }
             }
-
-            List<Long> minimums = new ArrayList<>(storeMin.values());
-
-            sum -=  minimums.stream().reduce(0L, Long::sum);
-
-            Collections.sort(minimums);
-
-            maxEnjoyment = sum * storeMin.size() +
-                            IntStream.rangeClosed(1, storeMin.size())
-                                .mapToLong(i -> i * minimums.get(i - 1))
-                                .sum();
-
-            out.println(maxEnjoyment);
         }
+
+        out.println(cnt);
     }
 
 
@@ -89,7 +64,7 @@ public class Main {
         FastScanner in = new FastScanner(System.in);
         PrintWriter out =
                 new PrintWriter(new BufferedWriter(new OutputStreamWriter(System.out)), false);
-        solve2(in, out);
+        solve(in, out);
         in.close();
         out.close();
     }
