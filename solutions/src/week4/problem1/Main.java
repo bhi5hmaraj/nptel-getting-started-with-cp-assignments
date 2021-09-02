@@ -1,77 +1,73 @@
+package week4.problem1;
+
 import java.util.*;
 import java.io.*;
 
-/*
-Author: Bhishmaraj S
-Discord: @TravellingSalesman
-Submission: https://www.codechef.com/viewsolution/50038495
- */
-
-class Week03Mod03StableMarriage {
+public class Main {
 
 
     /************************ SOLUTION STARTS HERE ***********************/
+    static class DSU {
+        private int parent[];
+        private int size[];
+        private int cnt;
 
+        DSU(int length) {
+            this.cnt = length;
+            parent = new int[length + 10];
+            size = new int[length + 10];
+            Arrays.fill(size, 1);
+            for (int i = 0; i < parent.length; i++)
+                parent[i] = i;
+        }
+
+        int root(int p) {
+            while(p != parent[p]) p = parent[p];
+            return p;
+        }
+
+        int sizeOf(int p) {
+            return size[root(p)];
+        }
+
+        boolean connected(int u, int v) {
+            return root(u) == root(v);
+        }
+
+        int components() {
+            return cnt;
+        }
+
+        void union(int u, int v) {
+            if (!connected(u, v)) {
+                cnt--;
+                int rootU = root(u);
+                int rootV = root(v);
+                if (size[rootU] < size[rootV]) {
+                    parent[rootU] = rootV;
+                    size[rootV] += size[rootU];
+                } else {
+                    parent[rootV] = rootU;
+                    size[rootU] += size[rootV];
+                }
+            }
+        }
+    }
 
     private static void solve(FastScanner scan, PrintWriter out) {
 
-        int T = scan.nextInt();
-        while (T-->0) {
-            int N = scan.nextInt();
-            int[][] womenChoice = new int[N][];
-            int[][] menChoice = new int[N][];
+        int N = scan.nextInt();
+        int Q = scan.nextInt();
 
-            for (int i = 0; i < N; i++) {
-                int w = scan.nextInt() - 1;
-                womenChoice[w] = scan.nextIntArray(N);
-                for (int j = 0; j < N; j++)
-                    womenChoice[w][j]--;
+        DSU dsu = new DSU(N);
+        while (Q-->0) {
+            switch (scan.nextInt()) {
+                case 0:
+                    dsu.union(scan.nextInt(), scan.nextInt());
+                    break;
+                case 1:
+                    out.println(dsu.connected(scan.nextInt(), scan.nextInt()) ? 1 : 0);
             }
-            for (int i = 0; i < N; i++) {
-                int m = scan.nextInt() - 1;
-                menChoice[m] = scan.nextIntArray(N);
-                for (int j = 0; j < N; j++)
-                    menChoice[m][j]--;
-            }
-
-            int[][] womenChoiceInverse = new int[N][N]; // for women w : wci[w][i] = position of man i in w's preference
-
-            for (int i = 0; i < N; i++)
-                for (int j = 0; j < N; j++)
-                    womenChoiceInverse[i][womenChoice[i][j]] = j;
-
-            ArrayDeque<Integer> unMatched = new ArrayDeque<>();
-            for (int i = 0; i < N; i++)
-                unMatched.add(i);
-
-            // This holds the index
-            int[] menMatching = new int[N];
-            // This holds actual value
-            int[] womenMatching = new int[N];
-
-            for (int i = 0; i < N; i++)
-                menMatching[i] = womenMatching[i] = -1; // un matched
-
-            while (unMatched.size() > 0) {
-                int m = unMatched.remove();
-                int ptr = menMatching[m] + 1;
-                for (; ptr < N; ptr++) {
-                    int w = menChoice[m][ptr];
-                    if (womenMatching[w] == -1) {
-                        womenMatching[w] = m;
-                        break;
-                    } else if (womenChoiceInverse[w][m] < womenChoiceInverse[w][womenMatching[w]]) {
-                        unMatched.add(womenMatching[w]);
-                        womenMatching[w] = m;
-                        break;
-                    }
-                }
-                menMatching[m] = ptr;
-            }
-
-            for (int i = 0; i < N; i++)
-                out.println((i + 1) + " " + (menChoice[i][menMatching[i]] + 1));
-
         }
 
     }
